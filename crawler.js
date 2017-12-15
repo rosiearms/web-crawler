@@ -1,28 +1,38 @@
-const Knwl = require("knwl.js");
-var knwlInstance = new Knwl('english');
+const Knwl = require('knwl.js');
+const knwlInstance = new Knwl('english');
+knwlInstance.register('places', require('knwl.js/default_plugins/places'));
+knwlInstance.register('emails', require('knwl.js/default_plugins/emails'));
+knwlInstance.register('links', require('knwl.js/default_plugins/links'));
+knwlInstance.register('phones', require('knwl.js/default_plugins/phones'));
 const request = require('request');
 const cheerio = require('cheerio');
 
-const visitPage = "http://www.canddi.com";
+const emailAddress = 'tim@systemPioneer.com'
+const businessName = emailAddress.split(/\@(.*)/)[1];
 
-request(visitPage, function(error, response, body) {
-   if(error) {
-     console.log("Error: " + error);
-   }
-   if(response.statusCode === 200) {
-     var $ = body;
-   }
+const visitPage = `http://www.${businessName}`;
 
+console.log('Scanning: ', visitPage);
 
-knwlInstance.init($);
+request(visitPage, function(error, response, HTML) {
+  if(error) {
+    console.log("Error: " + error);
+  }
+  if(response.statusCode === 200) {
+    var $ = cheerio.load(HTML);
+    var $body = $('body').text();
+  }
+  
+  
+knwlInstance.init($body);
 
-var phones = knwlInstance.get('phones');  
-var places = knwlInstance.get('places'); 
-var emails = knwlInstance.get('emails'); 
-var links = knwlInstance.get('links'); 
+const phones = knwlInstance.get('phones');  
+const places = knwlInstance.get('places'); 
+const emails = knwlInstance.get('emails'); 
+const links = knwlInstance.get('links'); 
 
-console.log('PLACES: ',places);
 console.log('PHONE NUMBERS: ',phones);
+console.log('PLACES: ',places);
 console.log('EMAILS: ',emails);
 console.log('LINKS: ', links);
 
